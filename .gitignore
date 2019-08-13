@@ -1,0 +1,6 @@
+.ipynb_checkpoints
+Data/*
+Code/DEPRECATED/*
+Results/*
+Manuscript/*
+Code/__pycache__/*
