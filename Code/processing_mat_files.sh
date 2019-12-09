@@ -9,9 +9,9 @@
 #data line at the bottom of the file which made life a bit difficult without moving things around
 
 touch runs.log
-for couplings_file in ../Results/couplings/*.mat; do
+for couplings_file in ../Results/couplings_revision/*.mat; do
     tail -q -n1 $couplings_file >> runs.log
 done
-for couplings_file in ../Results/couplings/*.mat; do
+for couplings_file in ../Results/couplings_revision/*.mat; do
     sed -i '' -e '$ d' $couplings_file
 done

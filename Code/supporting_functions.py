@@ -1,3 +1,4 @@
+import numpy as np
 
 ###########################################################################################
 #Mid-point rooting
@@ -69,6 +70,42 @@ def MP_root(tree):
     assert np.isclose(initial_bl-np.sum(pruned_bls), rooted_tree.total_branch_length())
     
     return rooted_tree
+
+def final_root(clade1, clade2, max_distance, tree):
+    """
+    Given the target clades, this actually re-roots the tree between them at the midpoint.
+
+    Input(s):
+    clade1 - Bio.Phylo clade object that belongs to tree
+    clade2 - Bio.Phylo clade object that belongs to tree
+    max_distance - the numerical distance between the two clades
+    tree - Bio.Phylo tree object to be re-rooted
+
+    Output(s):
+    tree - the tree object, re-rooted
+    """
+    
+    #Depth to go from the ingroup tip toward the outgroup tip 
+    root_remainder = 0.5 * (max_distance - (tree.root.branch_length or 0)) 
+    #This better be the case
+    assert root_remainder >= 0 
+    #Crawl between the nodes to find the middle branch
+    for node in tree.get_path(clade2): 
+        root_remainder -= node.branch_length 
+        if root_remainder < 0: 
+            outgroup_node = node 
+            outgroup_branch_length = -root_remainder
+            break 
+    else: 
+        raise ValueError("Somehow, failed to find the midpoint!")
+    #Specifying the outgroup_branch_length directly with this flag lead to some
+    #error-prone behavior so I'm doing it in two steps. Must be a bug and/or mis-understanding
+    #in Bio.Phylo
+    tree.root_with_outgroup(outgroup_node, outgroup_branch_length=0.0)
+    assert outgroup_node == tree.root.clades[1]
+    tree.root.clades[0].branch_length = tree.root.clades[0].branch_length + root_remainder
+    tree.root.clades[1].branch_length = tree.root.clades[1].branch_length - root_remainder
+    return tree
 
 
 
